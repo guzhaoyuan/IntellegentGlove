@@ -1,0 +1,19 @@
+http://bildr.org/2012/11/flex-sensor-arduino/
+
+1、硬件连接
+硬件接法在网站上有，一模一样完全照着连
+
+2、arduino程序
+在test_FlexSensor里
+
+3、测试原理
+	
+	flex-sensor就是一个应变片，也就是电阻传感器，弯曲会改变电阻。变化在20K欧附近不等。
+	
+	利用一个分压电路，从5V接出，连接flex-sensor，22K欧电阻，回到GND
+	从flex-sensor和22K欧电阻中间引出电压，连入arduino A0端口，读取电压，判断出flex-sensor电阻，反推出flex-sensor状态
+	
+	主要的工作在于：软件判断flex-sensor弯曲到底是click还是double-click 
+	做法：构建了状态机，设置了两个状态位，进行状态判断，使其可以判断出当前click的状态
+	该做法BUG:调用了系统函数millis(),它将读取从开机到现在的时间，并赋值给long类型变量。如果开机时间很长很长，long变量会溢出，导致无法判断
+	double-click
