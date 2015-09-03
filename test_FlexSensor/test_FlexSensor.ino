@@ -7,7 +7,7 @@ flex-sensor ----A0---- 22K ohm
 **/
 
 
-int flexSensorPin = A0;  //analog in pin 0
+int flexSensorPin[5] = {A0,A1,A2,A3,A4};
 int THRES_F1 = 400;      //A0 voltage change value
 long lastTime = 0;       //
 //int debounce = 150;    //
@@ -15,16 +15,34 @@ long thisTime = 0;       //
 bool isFirst = true;     //flag judging whether click is firstly bent
 bool isPresed = false;   //flag judging whether sensor is bent or straight
 int interval = 800;      //time interval between click and double-click
+int hand[5];
 
+class Finger{
+  public:
+  int status;
+  long lastTime;
+  bool isFirst;
+  bool isBent;
+  Finger(){}
+};
+
+  Finger (*finger)[5] ={new Finger()};
+  //Finger finger1 ;
+  //finger[2] =new Finger();
+  //Finger finger3 ;
+  //Finger finger4 ;
+  
 void setup() {
   Serial.begin(9600);
 }
 
 void loop() {
-  int rd = readHand();
+  int rd = 401;
+  readHand();
   //int flexSensorReading = analogRead(flexSensorPin);
   //  long thistime=millis();
   //  long interval=thistime-lstHandTime;
+  
   if(rd>=THRES_F1){
     isPresed=false;
   }
@@ -62,10 +80,12 @@ void loop() {
 
 
 int readHand() {
-  int fr_1 = 0;
-  for (int i = 0; i < 20; i++) {
-    fr_1 += analogRead(flexSensorPin);
+  for(int j=0;j<5;j++){
+    int fr = 0;
+    for (int i = 0; i < 20; i++) {
+    fr += analogRead(flexSensorPin[j]);
+    }
+    fr /= 20;
+    hand[j]=fr;
   }
-  fr_1 = fr_1 / 20;
-  return fr_1;
 }
