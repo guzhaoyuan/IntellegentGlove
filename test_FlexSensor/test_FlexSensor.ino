@@ -8,7 +8,7 @@ flex-sensor ----A0---- 22K ohm
 
 
 int flexSensorPin[5] = {A0,A1,A2,A3,A4};
-int THRES_F1 = 400;      //A0 voltage change value
+int THRES_F1 = 260;      //A0 voltage change value
 long lastTime = 0;       //
 //int debounce = 150;    //
 long thisTime = 0;       //
@@ -26,7 +26,7 @@ class Finger{
   Finger(){}
 };
 
-  Finger (*finger)[5] ={new Finger()};
+  //Finger (*finger)[5] ={new Finger(),new Finger(),new Finger(),new Finger(),new Finger()};
   //Finger finger1 ;
   //finger[2] =new Finger();
   //Finger finger3 ;
@@ -37,12 +37,12 @@ void setup() {
 }
 
 void loop() {
-  int rd = 401;
+  //int rd = 401;
   readHand();
   //int flexSensorReading = analogRead(flexSensorPin);
   //  long thistime=millis();
   //  long interval=thistime-lstHandTime;
-  
+  int rd = hand[0];
   if(rd>=THRES_F1){
     isPresed=false;
   }

@@ -1,6 +1,6 @@
 
 int flexSensorPin[5] = {A0, A1, A2, A3, A4};
-int THRES_F1 = 400;      //A0 voltage change value
+int THRES_F1 = 260;      //A0 voltage change value
 //int debounce = 150;    //
 long thisTime = 0;       //
 int interval = 800;      //time interval between click and double-click
@@ -8,74 +8,77 @@ int hand[5];
 
 class Finger {
   public:
-    String fingerInfo;
     //4 status for a finger
-    static String onpress ;
-    static String downpress ;
-    static String free ;
+    static String clicked ;
+    static String isBent ;
+    static String freed ;
     static String double_clicked ;
     static String relax ;
 
     int status;               //analog voltage in
+    String fingerInfo;
     long lastClickedTime = 0 - interval;
     bool isFirst = true;     //flag judging whether click is firstly bent
     bool isPresed = false;   //flag judging whether sensor is bent or straight
-    Finger(int stat) {
+    Finger(int stat, String info) {
       this->status = stat;
+      this->fingerInfo = info;
     }
     String toString() {
       return fingerInfo;
     }
 };
-String Finger::onpress = "is onPressing";
-String Finger::downpress = "is clicked";
-String Finger::free = "is clicked";
-String Finger::double_clicked = "is clicked";
-String Finger::relax = "is relaxing";
 
-Finger *finger[5] = {new Finger(0), new Finger(0), new Finger(0),
-         new Finger(0), new Finger(0)
+String Finger::clicked = "is clicked";
+String Finger::isBent = "is Bent";
+String Finger::freed = "is freed";
+String Finger::double_clicked = "is double-clicked";
+String Finger::relax = "is relaxed";
+
+Finger *finger[5] = {
+  new Finger(0, "Finger 0"), 
+  new Finger(0, "Finger 1"), 
+  new Finger(0, "Finger 2"),
+  new Finger(0, "Finger 3"), 
+  new Finger(0, "Finger 4")
 };
-
 
 void setup() {
   Serial.begin(9600);
 }
 
 void loop() {
-  readHand();
+  //readHand();
   //
-  for (int j = 0; j < 5; j++) {
+  for (int j = 0; j < 2; j++) {
+    readFinger(j);
     thisTime = millis();//get the time of click
     if (hand[j] >= THRES_F1) {
-      if(finger[j]->isPresed==true){
-        Serial.println(finger[j]->toString());
-        //Serial.println(Finger.free);
+      if (finger[j]->isPresed == true) {
+        Serial.print(finger[j]->toString());
+        Serial.println(Finger::freed);
       }
-      
       finger[j]->isPresed = false;
     }
     if (hand[j] < THRES_F1 && finger[j]->isPresed == false) {
       if (finger[j]->isFirst) {
-        Serial.println(finger[j]->fingerInfo);
-        Serial.println("click");
+        Serial.print(finger[j]->fingerInfo);
+        Serial.println(Finger::isBent);
         finger[j]->isFirst = false;
-      } else if (thisTime - finger[j]->lastClickedTime > interval) {
-        Serial.println(finger[j]->fingerInfo);
-        Serial.println("click");
+      } else if ((thisTime - finger[j]->lastClickedTime) > interval) {
+        Serial.print(finger[j]->fingerInfo);
+        Serial.println(Finger::clicked);
         finger[j]->isFirst = false;
       } else {
-        Serial.println(finger[j]->fingerInfo);
-        Serial.println("double-click");
+        Serial.print(finger[j]->fingerInfo);
+        Serial.println(Finger::double_clicked);
         finger[j]->isFirst = true;
         finger[j]->lastClickedTime = thisTime;
       }
       finger[j]->isPresed = true;
     }
-    
-
   }
-
+  delay(100);
 }
 
 
@@ -88,4 +91,14 @@ int readHand() {
     fr /= 20;
     hand[j] = fr;
   }
+}
+
+int readFinger(int finNum){
+    
+    int fr = 0;
+    for (int i = 0; i < 20; i++) {
+      fr += analogRead(flexSensorPin[finNum]);
+    }
+    fr /= 20;
+    hand[finNum] = fr;
 }
